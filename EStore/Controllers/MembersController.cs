@@ -45,6 +45,11 @@ namespace EStore.Controllers
         {
             try
             {
+                if (member.Email.Equals("admin@estore.com"))
+                {
+                    ModelState.AddModelError("Email", "This email address cannot use.");
+                    return View(member);
+                }
                 if (ModelState.IsValid)
                     memberRepository.Insert(member);
                 return RedirectToAction(nameof(Index));
@@ -63,7 +68,6 @@ namespace EStore.Controllers
             var member = memberRepository.GetById(id);
             if (member == null)
                 return NotFound();
-
             ViewBag.Country = GetCountryList();
             return View(member);
         }
@@ -78,6 +82,7 @@ namespace EStore.Controllers
                 if (ModelState.IsValid)
                 {
                     member.MemberId = id;
+                    member.Password = Extension.HashMD5.ToMD5(member.Password);
                     memberRepository.Update(member);
                 }
                 return RedirectToAction(nameof(Index));

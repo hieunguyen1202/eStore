@@ -1,11 +1,6 @@
 ﻿using BusinessObject;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using EStore.Extension;
 namespace DataAccess
 {
     public class MemberDAO
@@ -52,6 +47,7 @@ namespace DataAccess
             if (GetById(member.MemberId) != null)
                 throw new Exception("Member has existed");
             using var context = new FStoreContext();
+            member.Password = member.Password.ToMD5();
             context.Members.Add(member);
             context.SaveChanges();
         }
@@ -81,7 +77,7 @@ namespace DataAccess
             try
             {
                 IEnumerable<Member> members = GetAll().Append(GetDefaultMember());
-                member = members.SingleOrDefault(mb => mb.Email.Equals(email) && mb.Password.Equals(password));
+                member = members.SingleOrDefault(mb => mb.Email.Equals(email) && mb.Password.Equals(HashMD5.ToMD5(password)));
                 if (member == null)
                 {
                     throw new Exception("Login failed! Please check your email and password!!");
